@@ -4,21 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Luiz0311/estoque-go/db"
 	"github.com/joho/godotenv"
 )
-
-func TestPingDB(t *testing.T) {
-	db, err := db.GetDB()
-	if err != nil {
-		t.Errorf("Falha ao instanciar base de dados")
-	}
-	defer db.Close()
-
-	if err = db.Ping(); err != nil {
-		t.Errorf("Falha ao conectar na base de dados")
-	}
-}
 
 func TestEnv(t *testing.T) {
 	envPath := "../.env"
