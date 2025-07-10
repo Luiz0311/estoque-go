@@ -5,7 +5,10 @@ import (
 	"fmt"
 )
 
-var db *sql.DB
+var (
+	db     *sql.DB
+	logger *Logger
+)
 
 func Init() error {
 	var err error
@@ -20,4 +23,9 @@ func Init() error {
 
 func GetPostgres() *sql.DB {
 	return db
+}
+
+func GetLogger(p string) *Logger {
+	logger = NewLogger(p)
+	return logger
 }

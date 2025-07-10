@@ -7,7 +7,7 @@ import (
 
 func GenerateEAN13() string {
 	base := ""
-	for i := 0; i < 12; i++ {
+	for range 12 {
 		base += strconv.Itoa(rand.IntN(10))
 	}
 

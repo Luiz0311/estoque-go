@@ -1,16 +1,18 @@
 package main
 
 import (
-	"log"
-
 	"github.com/Luiz0311/estoque-go/config"
 	"github.com/Luiz0311/estoque-go/router"
 )
 
+var logger *config.Logger
+
 func main() {
+	logger = config.GetLogger("main")
+
 	err := config.Init()
 	if err != nil {
-		log.Fatalf("config error: %v", err)
+		logger.Err("erro ao carregar configuração", err)
 	}
 
 	router.Initialize()

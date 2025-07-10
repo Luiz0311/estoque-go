@@ -6,7 +6,7 @@ Vou rodar uma base de dados postgres e o framework gin do go em um container doc
 ## Todo
 - Api para adicionar, deletar, modificar e listar produtos no estoque ✅
 
-- Criar um logger
+- Criar um logger ✅
 
 - Tornar o atributo available implicito, isto é, não precisar colocá-lo explicitamente
 
