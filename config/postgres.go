@@ -18,10 +18,8 @@ type dbConfig struct {
 }
 
 func InitializePortgres() (*sql.DB, error) {
-	logger := GetLogger("postgres")
 	config, err := loadDBConfig()
 	if err != nil {
-		logger.Err("erro ao carregar configuração da base de dados", err)
 		return nil, err
 	}
 
@@ -32,19 +30,16 @@ func InitializePortgres() (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		logger.Err("erro ao conectar na base de dados", err)
 		return nil, err
 	}
 
 	tableQuery, err := loadTable()
 	if err != nil {
-		logger.Err("erro ao carregar arquivo .sql", err)
 		return nil, err
 	}
 
 	_, err = db.Exec(tableQuery)
 	if err != nil {
-		logger.Err("erro ao criar a tabela na base de dados", err)
 		return nil, err
 	}
 

@@ -2,7 +2,6 @@ package config
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 var (
@@ -15,7 +14,7 @@ func Init() error {
 
 	db, err = InitializePortgres()
 	if err != nil {
-		return fmt.Errorf("erro ao inicializar postgres: %v", err)
+		return err
 	}
 
 	return nil

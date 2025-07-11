@@ -12,7 +12,8 @@ func main() {
 
 	err := config.Init()
 	if err != nil {
-		logger.Err("erro ao carregar configuração", err)
+		logger.Errf("erro ao carregar configuração da base de dados: %v", err)
+		return
 	}
 
 	router.Initialize()
