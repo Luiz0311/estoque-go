@@ -12,7 +12,7 @@ func (pr *ProductRepository) DeleteProduct(id int) (p models.Product, err error)
 		UPDATE products
 		SET deleted_at = $1, updated_at = $2
 		WHERE id = $3 AND deleted_at IS NULL
-		RETURNING id, name
+		RETURNING id, created_at, updated_at, deleted_at, amount, price, total_value, name, type, ean_code, available
 	`
 
 	deletedAt := time.Now()
@@ -32,11 +32,11 @@ func (pr *ProductRepository) DeleteProduct(id int) (p models.Product, err error)
 		&p.Available,
 	)
 	if err == sql.ErrNoRows {
-		pr.logger.Errf("produto não encontrado ou já deletado: %v", err)
-		return models.Product{}, nil
+		pr.logger.Err(models.ErrProductNotFound)
+		return models.Product{}, models.ErrProductNotFound
 	} else if err != nil {
-		pr.logger.Errf("erro ao deletar produto: %v", err)
-		return models.Product{}, nil
+		pr.logger.Err(models.ErrDelete)
+		return models.Product{}, models.ErrDelete
 	}
 
 	return p, nil

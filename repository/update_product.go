@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -11,8 +10,8 @@ import (
 
 func (pr *ProductRepository) UpdateProduct(id int, data map[string]any) (p models.Product, err error) {
 	if len(data) == 0 {
-		pr.logger.Err("nenhum campo enviado")
-		return models.Product{}, err
+		pr.logger.Err(models.ErrNoData)
+		return models.Product{}, models.ErrNoData
 	}
 
 	if amountVal, ok := data["amount"]; ok {
@@ -79,12 +78,8 @@ func (pr *ProductRepository) UpdateProduct(id int, data map[string]any) (p model
 		&p.Available,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			pr.logger.Err("produto não encontrado")
-		} else {
-			pr.logger.Errf("erro ao encontrar o produto: %v", err)
-		}
-		return models.Product{}, err
+		pr.logger.Err(models.ErrProductNotFound)
+		return models.Product{}, models.ErrProductNotFound
 	}
 
 	return p, nil

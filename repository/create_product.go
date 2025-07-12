@@ -12,7 +12,21 @@ func (pr *ProductRepository) CreateProdct(p models.Product) (models.Product, err
 	p.UpdatedAt = time.Now()
 	p.EANCode = utils.GenerateEAN13()
 	p.Available = p.Amount > 0
-	p.TotalValue = p.Price * float64(p.Amount)
+
+	if p.Amount == 0 {
+		p.TotalValue = p.Price
+	} else {
+		p.TotalValue = float64(p.Amount) * p.Price
+	}
+
+	switch {
+	case p.Price <= 0:
+		return models.Product{}, models.ErrNoPrice
+	case p.Name == "":
+		return models.Product{}, models.ErrNoName
+	case p.Type == "":
+		return models.Product{}, models.ErrNoType
+	}
 
 	query := `
 		INSERT INTO products (name, type, ean_code, amount, price, total_value, available, created_at, updated_at)
@@ -34,8 +48,8 @@ func (pr *ProductRepository) CreateProdct(p models.Product) (models.Product, err
 	).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
 
 	if err != nil {
-		pr.logger.Errf("erro ao criar o produto: %v", err)
-		return models.Product{}, err
+		pr.logger.Err(models.ErrCreateProduct)
+		return models.Product{}, models.ErrCreateProduct
 	}
 
 	return p, nil

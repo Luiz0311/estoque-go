@@ -9,15 +9,13 @@ import (
 )
 
 func initializeRoutes(r *gin.Engine) {
-	basePath := "/api"
-
 	dbConnection := config.GetPostgres()
 	logger := config.GetLogger("repo")
 	ProductRepository := repository.NewProductRepository(dbConnection, logger)
 	ProductUseCase := usecase.NewProductUseCase(ProductRepository)
 	ProductController := controller.NewProductController(ProductUseCase)
 
-	api := r.Group(basePath)
+	api := r.Group("/api")
 	{
 		api.GET("/products", ProductController.GetProducts)
 		api.GET("/product/:id", ProductController.GetProduct)

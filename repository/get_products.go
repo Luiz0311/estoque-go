@@ -15,8 +15,8 @@ func (pr *ProductRepository) GetProducts() ([]models.Product, error) {
 
 	rows, err := pr.connection.Query(query)
 	if err != nil {
-		pr.logger.Errf("erro ao executar query no DB: %v", err)
-		return []models.Product{}, err
+		pr.logger.Err(models.ErrDB)
+		return []models.Product{}, models.ErrDB
 	}
 	defer rows.Close()
 
@@ -41,8 +41,8 @@ func (pr *ProductRepository) GetProducts() ([]models.Product, error) {
 			&p.EANCode,
 			&p.Available,
 		); err != nil {
-			pr.logger.Errf("erro ao ler produto: %v", err)
-			return []models.Product{}, err
+			pr.logger.Err(models.ErrRead)
+			return []models.Product{}, models.ErrRead
 		}
 
 		if deletedAt.Valid {
@@ -53,8 +53,8 @@ func (pr *ProductRepository) GetProducts() ([]models.Product, error) {
 	}
 
 	if !found {
-		pr.logger.Errf("nenhum produto encontrado: %v", err)
-		return []models.Product{}, err
+		pr.logger.Err(models.ErrProductsNotFound)
+		return []models.Product{}, models.ErrProductsNotFound
 	}
 
 	return products, nil

@@ -19,23 +19,4 @@ DBNAME=postgres
     - DELETE `/api/product/:id`
 
 ### Cadastrar um produto
-- É necessário solicitar o nome, tipo, quantidade e preço      
-
-## Todo
-- Api para adicionar, deletar, modificar e listar produtos no estoque ✅
-
-- Criar um logger ✅
-
-- Tornar o atributo available implicito, isto é, não precisar colocá-lo explicitamente ✅
-
-- criar atributo totalValue que vai pegar o preço e multiplicar pela quantidade ✅
-
-- Se produto tiver sido deletado, retornar que foi deletado para o get por produto
-
-- Criar rota para listar os produtos por tipo
-
-- Criar uma rota somente para produtos deletados
-        - listar produtos deletados
-        - recuperar produtos deletados
-
-- Criar rota que retorna o preço da filial (soma de todos os atributos totalValue)
+- É necessário solicitar o nome, tipo, preço e quantidade (opcional)      

@@ -30,11 +30,11 @@ func (pr *ProductRepository) GetProduct(id int) (p models.Product, err error) {
 	)
 
 	if err == sql.ErrNoRows {
-		pr.logger.Errf("produto não encontrado: %v", err)
-		return models.Product{}, err
+		pr.logger.Err(models.ErrProductNotFound)
+		return models.Product{}, models.ErrProductNotFound
 	} else if err != nil {
-		pr.logger.Errf("erro ao buscar o produto: %v", err)
-		return models.Product{}, err
+		pr.logger.Err(models.ErrSearchProduct)
+		return models.Product{}, models.ErrSearchProduct
 	}
 
 	if deletedAt.Valid {

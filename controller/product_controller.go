@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/Luiz0311/estoque-go/models"
+	m "github.com/Luiz0311/estoque-go/models"
 	"github.com/Luiz0311/estoque-go/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -18,12 +18,15 @@ func NewProductController(useCase usecase.ProductUseCase) ProductController {
 
 func (pc *ProductController) GetProducts(ctx *gin.Context) {
 	products, err := pc.productUseCase.GetProducts()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+	if err == m.ErrDB || err == m.ErrRead {
+		m.SendoError(ctx, http.StatusInternalServerError, err.Error())
+		return
+	} else if err != nil {
+		m.SendoError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, products)
+	m.SendSuccess(ctx, products)
 }
 
 func (pc *ProductController) GetProduct(ctx *gin.Context) {
@@ -31,55 +34,55 @@ func (pc *ProductController) GetProduct(ctx *gin.Context) {
 
 	product, err := pc.productUseCase.GetProduct(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		m.SendoError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, product)
+	m.SendSuccess(ctx, product)
 }
 
 func (pc *ProductController) DeleteProduct(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	product, err := pc.productUseCase.DeleteProduct(id)
+	product, err := pc.productUseCase.GetProduct(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+		m.SendoError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, product)
+	m.SendSuccess(ctx, product)
 }
 
 func (pc *ProductController) CreateProdct(ctx *gin.Context) {
-	var p models.Product
+	var p m.Product
 
 	if err := ctx.ShouldBind(&p); err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		m.SendoError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	product, err := pc.productUseCase.CreateProdct(p)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		m.SendoError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, product)
+	m.SendSuccess(ctx, product)
 }
 
 func (pc ProductController) UpdateProduct(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var data map[string]any
 	if err := ctx.BindJSON(&data); err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		m.SendoError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	product, err := pc.productUseCase.UpdateProduct(id, data)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		m.SendoError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, product)
+	m.SendSuccess(ctx, product)
 }

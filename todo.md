@@ -1,0 +1,8 @@
+- validar campo de criação de produtos
+- Adicionar erros custom na dependência do repository
+- Se produto tiver sido deletado, retornar que foi deletado para o get por produto
+- Criar rota para listar os produtos por tipo
+- Criar uma rota somente para produtos deletados
+    - listar produtos deletados
+    - recuperar produtos deletados
+- Criar rota que retorna o preço da filial (soma de todos os atributos totalValue)
