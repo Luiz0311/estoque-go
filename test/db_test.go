@@ -9,7 +9,10 @@ import (
 
 func TestEnv(t *testing.T) {
 	envPath := "../.env"
-	godotenv.Load(envPath)
+	if err := godotenv.Load(envPath); err != nil {
+		t.Error("faltando o arquivo \".env\"")
+		return
+	}
 
 	var (
 		dbName   = os.Getenv("DBNAME")
@@ -19,7 +22,8 @@ func TestEnv(t *testing.T) {
 	)
 
 	if dbName == "" || host == "" || password == "" || port == "" {
-		t.Error("Alguma variável de ambiente está faltando")
+		t.Error("alguma variável de ambiente está faltando")
+		return
 	}
 
 	t.Logf(

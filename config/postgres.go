@@ -66,7 +66,7 @@ func loadDBConfig() (dbConfig, error) {
 }
 
 func loadTable() (string, error) {
-	tableStr, err := os.ReadFile("config/productsTable.sql")
+	tableStr, err := os.ReadFile("config/products_table.sql")
 	if err != nil {
 		return "", err
 	}
