@@ -1,22 +1,13 @@
-package handlers
+package repository
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/Luiz0311/estoque-go/models"
 	"github.com/Luiz0311/estoque-go/utils"
-	"github.com/gin-gonic/gin"
 )
 
-func CreateProdct(c *gin.Context) {
-	var p models.Product
-
-	if err := c.ShouldBind(&p); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
-		return
-	}
-
+func (pr *ProductRepository) CreateProdct(p models.Product) (models.Product, error) {
 	p.CreatedAt = time.Now()
 	p.UpdatedAt = time.Now()
 	p.EANCode = utils.GenerateEAN13()
@@ -29,7 +20,7 @@ func CreateProdct(c *gin.Context) {
 		RETURNING id, created_at, updated_at
 	`
 
-	err := db.QueryRow(
+	err := pr.connection.QueryRow(
 		query,
 		p.Name,
 		p.Type,
@@ -43,9 +34,9 @@ func CreateProdct(c *gin.Context) {
 	).Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar o produto: " + err.Error()})
-		return
+		pr.logger.Errf("erro ao criar o produto: %v", err)
+		return models.Product{}, err
 	}
 
-	c.JSON(http.StatusCreated, p)
+	return p, nil
 }

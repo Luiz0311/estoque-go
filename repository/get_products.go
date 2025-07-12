@@ -1,24 +1,22 @@
-package handlers
+package repository
 
 import (
 	"database/sql"
-	"net/http"
 
 	"github.com/Luiz0311/estoque-go/models"
-	"github.com/gin-gonic/gin"
 )
 
-func GetProducts(c *gin.Context) {
+func (pr *ProductRepository) GetProducts() ([]models.Product, error) {
 	query := `
 		SELECT id, created_at, updated_at, deleted_at, amount, price, total_value, name, type, ean_code, available 
 		FROM products 
 		WHERE deleted_at IS NULL
 	`
 
-	rows, err := db.Query(query)
+	rows, err := pr.connection.Query(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar produtos: " + err.Error()})
-		return
+		pr.logger.Errf("erro ao executar query no DB: %v", err)
+		return []models.Product{}, err
 	}
 	defer rows.Close()
 
@@ -43,8 +41,8 @@ func GetProducts(c *gin.Context) {
 			&p.EANCode,
 			&p.Available,
 		); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao ler produto: " + err.Error()})
-			return
+			pr.logger.Errf("erro ao ler produto: %v", err)
+			return []models.Product{}, err
 		}
 
 		if deletedAt.Valid {
@@ -55,9 +53,9 @@ func GetProducts(c *gin.Context) {
 	}
 
 	if !found {
-		c.JSON(http.StatusOK, gin.H{"message": "Nenhum produto encontrado"})
-		return
+		pr.logger.Errf("nenhum produto encontrado: %v", err)
+		return []models.Product{}, err
 	}
 
-	c.JSON(http.StatusOK, products)
+	return products, nil
 }

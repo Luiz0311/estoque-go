@@ -1,27 +1,18 @@
-package handlers
+package repository
 
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/Luiz0311/estoque-go/models"
 )
 
-func UpdateProduct(c *gin.Context) {
-	id := c.Param("id")
-
-	var data map[string]any
-	if err := c.BindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido"})
-		return
-	}
-
+func (pr *ProductRepository) UpdateProduct(id int, data map[string]any) (p models.Product, err error) {
 	if len(data) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "nenhum campo enviado"})
-		return
+		pr.logger.Err("nenhum campo enviado")
+		return models.Product{}, err
 	}
 
 	if amountVal, ok := data["amount"]; ok {
@@ -71,26 +62,30 @@ func UpdateProduct(c *gin.Context) {
 		UPDATE products
 		SET %s
 		WHERE id = $%d AND deleted_at IS NULL
-		RETURNING id, created_at, updated_at
+		RETURNING id, created_at, updated_at, deleted_at, amount, price, total_value, name, type, ean_code, available
 	`, strings.Join(setParts, ", "), i)
 
-	var updatedID int
-	var createdAt, updatedAt time.Time
-
-	err := db.QueryRow(query, values...).Scan(&updatedID, &createdAt, &updatedAt)
+	err = pr.connection.QueryRow(query, values...).Scan(
+		&p.ID,
+		&p.CreatedAt,
+		&p.UpdatedAt,
+		&p.DeletedAt,
+		&p.Amount,
+		&p.Price,
+		&p.TotalValue,
+		&p.Name,
+		&p.Type,
+		&p.EANCode,
+		&p.Available,
+	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{"error": "produto não encontrado"})
+			pr.logger.Err("produto não encontrado")
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "erro ao atualizar o produto: " + err.Error()})
+			pr.logger.Errf("erro ao encontrar o produto: %v", err)
 		}
-		return
+		return models.Product{}, err
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message":    "produto atualizado com sucesso",
-		"id":         updatedID,
-		"created_at": createdAt,
-		"updated_at": updatedAt,
-	})
+	return p, nil
 }

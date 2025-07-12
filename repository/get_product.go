@@ -1,26 +1,21 @@
-package handlers
+package repository
 
 import (
 	"database/sql"
-	"net/http"
 
 	"github.com/Luiz0311/estoque-go/models"
-	"github.com/gin-gonic/gin"
 )
 
-func GetProduct(c *gin.Context) {
-	id := c.Param("id")
-
+func (pr *ProductRepository) GetProduct(id int) (p models.Product, err error) {
 	query := `
 		SELECT id, created_at, updated_at, deleted_at, amount, price, total_value, name, type, ean_code, available
 		FROM products
 		WHERE id = $1 AND deleted_at IS NULL
 	`
 
-	var p models.Product
 	var deletedAt sql.NullTime
 
-	err := db.QueryRow(query, id).Scan(
+	err = pr.connection.QueryRow(query, id).Scan(
 		&p.ID,
 		&p.CreatedAt,
 		&p.UpdatedAt,
@@ -35,15 +30,16 @@ func GetProduct(c *gin.Context) {
 	)
 
 	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, gin.H{"error": "produto não encontrado"})
-		return
+		pr.logger.Errf("produto não encontrado: %v", err)
+		return models.Product{}, err
 	} else if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "erro ao buscar o produto: " + err.Error()})
+		pr.logger.Errf("erro ao buscar o produto: %v", err)
+		return models.Product{}, err
 	}
 
 	if deletedAt.Valid {
 		p.DeletedAt = &deletedAt.Time
 	}
 
-	c.JSON(http.StatusOK, p)
+	return p, nil
 }
